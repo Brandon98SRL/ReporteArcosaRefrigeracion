@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Reporte de Servicio | ARCOSA</title>
+  <style>
+    :root { --bg:#0b1220; --card:#121a2b; --ink:#e9eefc; --muted:#93a1c8; --brand:#4da3ff; --ok:#2ecc71; --warn:#f1c40f; --danger:#e74c3c; }
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu;}
+    .wrap{max-width:920px;margin:0 auto;padding:16px;}
+    header{display:flex;align-items:center;gap:12px;margin:8px 0 16px}
+    header img{height:36px;width:auto;border-radius:6px;background:#fff;padding:4px}
+    header h1{font-size:18px;margin:0}
+    .card{background:var(--card);border:1px solid #1f2a44;border-radius:14px;padding:14px;margin:10px 0;box-shadow:0 6px 18px rgba(0,0,0,.25)}
+    .grid{display:grid;grid-template-columns:1fr;gap:10px}
+    @media(min-width:680px){.grid-2{grid-template-columns:1fr 1fr}.grid-3{grid-template-columns:repeat(3,1fr)}}
+    label{font-size:12px;color:var(--muted);display:block;margin-bottom:6px}
+    input,select,textarea{width:100%;padding:12px 12px;border-radius:10px;border:1px solid #263355;background:#0e1626;color:var(--ink);font-size:14px;box-sizing:border-box;min-width:0}
+    textarea{min-height:88px;resize:vertical}
+    .row{display:flex;gap:10px;align-items:center}
+    .btn{appearance:none;border:1px solid #324268;background:#0e182b;color:var(--ink);padding:10px 14px;border-radius:12px;font-weight:600}
+    .btn:hover{filter:brightness(1.1)}
+    .btn.primary{background:var(--brand);border-color:rgba(255,255,255,.15);color:#001b36}
+    .btn.ghost{background:transparent}
+    .btn.ok{background:var(--ok);color:#001c0d}
+    .btn.warn{background:var(--warn);color:#221a00}
+    .btn.danger{background:var(--danger)}
+    .sec-title{font-weight:700;margin:2px 0 8px;font-size:13px;color:#c7d4ff;letter-spacing:.2px}
+    small.note{color:var(--muted)}
+    .sig-pad{border:1px dashed #2b375c;border-radius:12px;background:#0b1424;height:160px;touch-action:none}
+    .tbl{width:100%;border-collapse:separate;border-spacing:0 8px;table-layout:fixed}
+    .tbl th{font-size:12px;color:var(--muted);text-align:left}
+    .tbl td{background:#0b1424;border:1px solid #22305a;padding:8px;border-radius:10px;word-break:break-word;overflow-wrap:anywhere}
+    .pill{display:inline-block;padding:4px 10px;border-radius:999px;background:#0f1a2e;border:1px solid #24345f;font-size:12px}
+    .footer{color:var(--muted);font-size:12px;margin-top:8px}
+
+    /* Preview overlay */
+    .preview-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;z-index:9999;overflow:auto}
+    .preview-backdrop.show{display:block}
+    .preview-card{background:#fff;color:#000;max-width:980px;margin:24px auto;padding:16px 20px;border-radius:12px}
+    .preview-actions{display:flex;gap:8px;justify-content:flex-end;margin-bottom:8px}
+
+    /* Marca de agua */
+    .wm{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
+    .wm img{opacity:.08;transform:rotate(-25deg);max-width:85%;max-height:85%}
+
+    /* Barra inferior sticky: carril horizontal desplazable */
+    .wrap > .row[style*="position:sticky"]{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;gap:6px}
+    .wrap > .row[style*="position:sticky"] .btn{flex:0 0 auto;white-space:nowrap}
+    .wrap > .row[style*="position:sticky"]::-webkit-scrollbar{height:6px}
+    .wrap > .row[style*="position:sticky"]::-webkit-scrollbar-thumb{background:#263355;border-radius:3px}
+
+    @media(max-width:680px){
+      .grid,.grid-2,.grid-3{grid-template-columns:1fr}
+      header img{height:28px}
+      header h1{font-size:16px}
+      .sig-pad{height:130px}
+      .row{flex-wrap:nowrap}
+      .btn{padding:8px 10px;font-size:13px}
+      .preview-card{margin:8px auto;padding:10px 12px}
+    }
+
+    .legend{font-size:10px;color:#555;margin-top:8px;line-height:1.35}
+    @media print{ .legend{font-size:10px;color:#444} }
+
+    @media print{
+      body{background:#fff;color:#000}
+      .card,header,.footer,.btn,.add-row,.del-row,#preview{display:none !important}
+      .print{display:block !important}
+      .print .block{break-inside:avoid}
+      .print h2{font-size:18px;margin:8px 0}
+      .print p, .print td, .print th{font-size:12px;color:#000}
+      .print .grid-2{grid-template-columns:1fr 1fr}
+      .print .grid-3{grid-template-columns:repeat(3,1fr)}
+      .print .box{border:1px solid #999;border-radius:8px;padding:8px;margin:8px 0}
+      .print .tbl td{border:1px solid #999;background:#fff}
+      .wm img{opacity:0.06 !important}
+    }
+      /* Checklist: checkbox a la izquierda del texto */
+    #mantoChecklist label{display:flex; align-items:flex-start; gap:8px; line-height:1.25; justify-content:flex-start; text-align:left}
+    #mantoChecklist input[type="checkbox"]{margin:2px 6px 0 0; align-self:flex-start}
+    #mantoChecklist b{display:block; margin:6px 0}
+    #mantoChecklist label span{flex:1; display:block}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <img src="" alt="Logo" id="logoPreview"/>
+      <div>
+        <h1>Reporte de Servicio</h1>
+        <div class="row" style="gap:6px"><span class="pill">Llenado rápido en móvil</span><span class="pill">PDF con firmas</span><span class="pill">Compartir</span></div>
+      </div>
+    </header>
+
+    <!-- Configuración -->
+    <div class="card">
+      <div class="sec-title">Configuración</div>
+      <div class="grid grid-2">
+        <div>
+          <label>Logo (opcional)</label>
+          <input type="file" id="logoFile" accept="image/*"/>
+          <small class="note">Se imprime en el PDF.</small>
+        </div>
+        <div>
+          <label>Correo del asistente de servicio (CC)</label>
+          <input id="correoAsistente" type="email" placeholder="asistente.servicio@empresa.com"/>
+          <small class="note">Siempre se copiará en la opción de compartir.</small>
+        </div>
+      </div>
+      <div class="grid">
+        <div>
+          <label>Marca de agua (opcional)</label>
+          <input type="file" id="wmFile" accept="image/*"/>
+          <small class="note">Se coloca centrada y tenue en el PDF.</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cliente -->
+    <div class="card">
+      <div class="sec-title">Cliente</div>
+      <div class="grid grid-2">
+        <div>
+          <label>Cliente</label>
+          <input id="cliente" placeholder="Razón social / Cliente"/>
+        </div>
+        <div>
+          <label>Contacto</label>
+          <input id="contacto" placeholder="Nombre del contacto"/>
+        </div>
+      </div>
+      <div class="grid grid-3">
+        <div>
+          <label>Ubicación</label>
+          <input id="ubicacion" placeholder="Dirección / Sucursal"/>
+        </div>
+        <div>
+          <label>Teléfono</label>
+          <input id="telefono" inputmode="tel" placeholder="+52 ..."/>
+        </div>
+        <div>
+          <label>Correo del cliente (destinatario)</label>
+          <input id="correoCliente" type="email" placeholder="contacto@cliente.com"/>
+        </div>
+      </div>
+    </div>
+
+    <!-- Equipo -->
+    <div class="card">
+      <div class="sec-title">Equipo</div>
+      <div class="grid grid-3">
+        <div>
+          <label>Equipo / Modelo</label>
+          <input id="equipo" placeholder="p.ej. ARC_ICE-0455CA2"/>
+        </div>
+        <div>
+          <label>No. de serie</label>
+          <input id="serie" placeholder="Serie"/>
+        </div>
+        <div>
+          <label>OT / Ticket</label>
+          <input id="ot" placeholder="Número de orden / ticket"/>
+        </div>
+      </div>
+      <div class="grid grid-3">
+        <div>
+          <label>Tipo de servicio</label>
+          <select id="tipo">
+            <option>Mantenimiento</option>
+            <option>Correctivo</option>
+            <option>Instalación</option>
+            <option>Levantamiento</option>
+          </select>
+        </div>
+        <div>
+          <label>Prioridad</label>
+          <select id="prioridad"><option>Normal</option><option>Alta</option><option>Crítica</option></select>
+        </div>
+        <div>
+          <label>Tipo de refrigerante</label>
+          <select id="refrigerante">
+            <option value="" selected disabled>Selecciona refrigerante</option>
+            <option value="R-404A">R-404A</option>
+            <option value="R-507A">R-507A</option>
+            <option value="R-717">R-717 (Amoníaco)</option>
+            <option value="otro">Otro (especificar)</option>
+          </select>
+          <input id="refrigeranteOtro" placeholder="Especificar refrigerante" style="display:none;margin-top:8px"/>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reporte del cliente (antes: Reporte inicial) -->
+    <div class="card" id="cardRepCliente" data-section="rep-cliente">
+      <div class="sec-title">Reporte del cliente</div>
+      <div class="grid grid-2">
+        <div>
+          <label>Reporte del cliente (descripción)</label>
+          <textarea id="reporteInicial" placeholder="Condiciones reportadas, observaciones del cliente..."></textarea>
+        </div>
+        <div>
+          <label>Fotos (reporte del cliente)</label>
+          <input id="fotosInicial" type="file" accept="image/*" multiple />
+        </div>
+      </div>
+    </div>
+
+    <!-- Condiciones de llegada (antes: Diagnósticos y condiciones de llegada) -->
+    <div class="card" id="cardCondLlegada" data-section="cond-llegada">
+      <div class="sec-title">Condiciones de llegada</div>
+      <div class="grid grid-2">
+        <div>
+          <label>Condiciones de llegada / levantamiento</label>
+          <textarea id="diagnostico" placeholder="Lecturas iniciales, hallazgos, estado del sitio..."></textarea>
+        </div>
+        <div>
+          <label>Fotos de condiciones de llegada</label>
+          <input id="fotosDiag" type="file" accept="image/*" multiple />
+        </div>
+      </div>
+    </div>
+
+    <!-- Trabajo realizado -->
+    <div class="card" id="cardTrabajo" data-section="trabajo">
+      <div class="sec-title">Trabajo realizado</div>
+      <div class="grid grid-2">
+        <div>
+          <label>Trabajo realizado</label>
+          <textarea id="trabajos" placeholder="Actividades, pruebas, ajustes, reemplazos..."></textarea>
+        </div>
+        <div>
+          <label>Fotos del trabajo realizado</label>
+          <input id="fotosTrabajo" type="file" accept="image/*" multiple />
+        </div>
+      </div>
+      <!-- Checklist sólo para Mantenimiento -->
+      <div id="mantoChecklist" style="display:none; margin-top:8px">
+        <div class="sec-title">Checklist de mantenimiento</div>
+        <div class="grid grid-2">
+          <div>
+            <b>Refrigeración</b>
+            <label><input type="checkbox" class="chkManto" value="Super heat para revisión de nivel de refrigerante"> Super heat para revisión de nivel de refrigerante</label>
+            <label><input type="checkbox" class="chkManto" value="Mantenimiento filtro a solenoide de líquido"> Mantenimiento filtro a solenoide de líquido</label>
+            <label><input type="checkbox" class="chkManto" value="Filtro de aceite"> Filtro de aceite</label>
+            <label><input type="checkbox" class="chkManto" value="Acidez del aceite"> Acidez del aceite</label>
+            <label><input type="checkbox" class="chkManto" value="Cambio de aceite"> Cambio de aceite</label>
+          </div>
+          <div>
+            <b>Gabinete</b>
+            <label><input type="checkbox" class="chkManto" value="Revisión del sello"> Revisión del sello</label>
+            <label><input type="checkbox" class="chkManto" value="Limpieza de conexiones"> Limpieza de conexiones</label>
+            <label><input type="checkbox" class="chkManto" value="Aspirado"> Aspirado</label>
+            <label><input type="checkbox" class="chkManto" value="Reapretado de terminales"> Reapretado de terminales</label>
+          </div>
+        </div>
+        <div class="grid grid-2">
+          <div>
+            <b>Controles eléctricos y sensores</b>
+            <label><input type="checkbox" class="chkManto" value="Revisión de sensores"> Revisión de sensores</label>
+            <label><input type="checkbox" class="chkManto" value="Recalibración de transductores conforme a medición real"> Recalibración de transductores conforme a medición real</label>
+          </div>
+          <div>
+            <b>Mecánico</b>
+            <label><input type="checkbox" class="chkManto" value="Engrasar cadena de reductor"> Engrasar cadena de reductor</label>
+            <label><input type="checkbox" class="chkManto" value="Capuchones y o-rings"> Capuchones y o-rings</label>
+            <label><input type="checkbox" class="chkManto" value="Retoques de pintura"> Retoques de pintura</label>
+          </div>
+        </div>
+        <div class="grid grid-2">
+          <div>
+            <b>Sistema hidráulico</b>
+            <label><input type="checkbox" class="chkManto" value="Revisión y limpieza de filtros de agua (entrada y/o cartuchos)"> Revisión y limpieza de filtros de agua (entrada y/o cartuchos)</label>
+            <label><input type="checkbox" class="chkManto" value="Verificación de presión y flujo de agua de alimentación"> Verificación de presión y flujo de agua de alimentación</label>
+            <label><input type="checkbox" class="chkManto" value="Eliminación de incrustaciones de sarro en líneas de agua, válvulas y boquillas"> Eliminación de incrustaciones de sarro en líneas de agua, válvulas y boquillas</label>
+            <label><input type="checkbox" class="chkManto" value="Sanitización de superficies en contacto con agua"> Sanitización de superficies en contacto con agua</label>
+          </div>
+          <div>
+            <b>Condensador</b>
+            <label><input type="checkbox" class="chkManto" value="Limpieza de serpentines del condensador"> Limpieza de serpentines del condensador</label>
+            <label><input type="checkbox" class="chkManto" value="Verificación de ventiladores, correas y flujo de aire"> Verificación de ventiladores, correas y flujo de aire</label>
+            <label><input type="checkbox" class="chkManto" value="Medición de presión de condensación"> Medición de presión de condensación</label>
+          </div>
+        </div>
+        <div class="grid">
+          <div>
+            <b>Evaporador / Moldes de formación de hielo</b>
+            <label><input type="checkbox" class="chkManto" value="Desinfección y desincrustación de moldes"> Desinfección y desincrustación (eliminación de calcio y minerales)</label>
+            <label><input type="checkbox" class="chkManto" value="Revisión de uniformidad de cubos"> Revisión de la uniformidad en la formación de cubos</label>
+            <label><input type="checkbox" class="chkManto" value="Lubricación de piezas móviles"> Lubricación de piezas móviles (cuando aplique)</label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Condiciones de entrega y resultados -->
+    <div class="card">
+      <div class="sec-title">Condiciones de entrega y resultados</div>
+      <div class="grid grid-3">
+        <div>
+          <label>Amperaje promedio del compresor (A)</label>
+          <input id="ampProm" type="number" step="0.01" placeholder="A"/>
+        </div>
+        <div>
+          <label>Tiempo de congelación</label>
+          <input id="tCong" type="number" step="1" placeholder="min"/>
+        </div>
+        <div>
+          <label>Tiempo de deshielo</label>
+          <input id="tDesh" type="number" step="1" placeholder="min"/>
+        </div>
+      </div>
+      <div class="grid grid-3">
+        <div>
+          <label>Hielo por cosecha (kg)</label>
+          <input id="kgCosecha" type="number" step="0.1" placeholder="kg"/>
+        </div>
+        <div>
+          <label>Cosechas supervisadas</label>
+          <input id="cosechasObs" type="number" step="1" placeholder="cantidad"/>
+        </div>
+        <div>
+          <label>Toneladas por día (calculado)</label>
+          <input id="tonsDia" disabled placeholder="0.00"/>
+        </div>
+      </div>
+      <!-- Añadidos de abanico y reductor -->
+      <div class="grid grid-3">
+        <div>
+          <label>Tiempo de abanico — Min</label>
+          <input id="tAbanMin" type="number" step="1" placeholder="min"/>
+        </div>
+        <div>
+          <label>Tiempo de abanico — Seg</label>
+          <input id="tAbanSeg" type="number" step="1" placeholder="seg"/>
+        </div>
+        <div>
+          <label>Ajuste de abanico</label>
+          <input id="ajusteAban" type="number" step="1" placeholder="seg"/>
+        </div>
+      </div>
+      <div class="grid grid-3">
+        <div>
+          <label>Rango de ciclado de abanico — Mín</label>
+          <input id="rangoAbanMin" placeholder="min (seg)"/>
+        </div>
+        <div>
+          <label>Rango de ciclado de abanico — Máx</label>
+          <input id="rangoAbanMax" placeholder="máx (seg)"/>
+        </div>
+        <div>
+          <label>Tiempo de reductor</label>
+          <input id="tReductor" type="number" step="1" placeholder="min"/>
+        </div>
+      </div>
+      <div class="grid grid-3">
+        <div>
+          <label>Estado final</label>
+          <select id="estado">
+            <option>Operando</option>
+            <option>Operando con observaciones</option>
+            <option>Fuera de servicio</option>
+            <option>Requiere seguimiento</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid">
+        <div>
+          <label>Comentarios</label>
+          <textarea id="comentResultados" placeholder="Notas de entrega y resultados"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Datos del técnico -->
+    <div class="card">
+      <div class="sec-title">Datos del técnico</div>
+      <div class="grid grid-2">
+        <div>
+          <label>Técnico</label>
+          <input id="tecnico" placeholder="Nombre del técnico"/>
+        </div>
+        <div>
+          <label>Correo del técnico (CC opcional)</label>
+          <input id="correoTec" type="email" placeholder="tecnico@empresa.com"/>
+        </div>
+      </div>
+      <div class="sec-title">Jornadas de servicio</div>
+      <small class="note">Agrega uno o varios días con hora de llegada y salida.</small>
+      <table class="tbl" id="tblJornadas">
+        <thead><tr><th>Fecha</th><th>Hora llegada</th><th>Hora salida</th><th></th></tr></thead>
+        <tbody id="jornadasBody"></tbody>
+      </table>
+      <button class="btn ghost" onclick="addJornada()">+ Agregar día</button>
+    </div>
+
+    <!-- Refacciones -->
+    <div class="card">
+      <div class="sec-title">Refacciones y materiales usados en el servicio</div>
+      <table class="tbl" id="partsTable">
+        <thead><tr><th style="width:70%">Descripción</th><th style="width:30%">Cantidad</th></tr></thead>
+        <tbody id="partsBody"></tbody>
+      </table>
+      <button class="btn ghost add-row" onclick="addPartRow()">+ Agregar partida</button>
+    </div>
+
+    <!-- Recomendaciones y Próximo servicio (fusionado) -->
+    <div class="card">
+      <div class="sec-title">Recomendaciones y próximo servicio</div>
+      <div class="grid grid-2">
+        <div>
+          <label>Recomendaciones y trabajos futuros</label>
+          <textarea id="recomendaciones" placeholder="Siguientes pasos, refacciones sugeridas, mejoras..."></textarea>
+        </div>
+        <div>
+          <label>Fotos de recomendaciones</label>
+          <input id="fotosRecom" type="file" accept="image/*" multiple />
+        </div>
+      </div>
+      <div class="grid grid-3">
+        <div>
+          <label>Fecha sugerida</label>
+          <input id="proxFecha" type="date"/>
+        </div>
+        <div>
+          <label>Prioridad</label>
+          <select id="proxPrior"><option>Normal</option><option>Alta</option><option>Crítica</option></select>
+        </div>
+        <div>
+          <label>Contacto para agendar</label>
+          <input id="proxContacto" placeholder="Nombre / Tel / Correo"/>
+        </div>
+      </div>
+    </div>
+
+    <!-- Firmas -->
+    <div class="card">
+      <div class="sec-title">Firmas</div>
+      <div class="grid grid-2">
+        <div>
+          <label>Firma del técnico</label>
+          <canvas id="sigTecnico" class="sig-pad"></canvas>
+          <div class="row"><input id="nombreTecnico" placeholder="Nombre del técnico"/><button class="btn ghost" onclick="clearSig('sigTecnico')">Limpiar</button></div>
+        </div>
+        <div>
+          <label>Firma del cliente</label>
+          <canvas id="sigCliente" class="sig-pad"></canvas>
+          <div class="row"><input id="nombreCliente" placeholder="Nombre y cargo"/><button class="btn ghost" onclick="clearSig('sigCliente')">Limpiar</button></div>
+          <small class="note">Al firmar, el cliente declara que fue informado de los trabajos realizados, del equipo y materiales utilizados durante el servicio, y acepta que la máquina se entrega en el estado operativo descrito en este reporte. Cualquier cambio posterior en las condiciones de operación será considerado un nuevo servicio.</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Barra inferior -->
+    <div class="row" style="justify-content:space-between;position:sticky;bottom:10px;background:linear-gradient(180deg, transparent, rgba(11,18,32,.85));padding-top:8px">
+      <button class="btn" onclick="previewReport()">Vista previa</button>
+      <div class="row" style="gap:6px;flex-wrap:nowrap">
+        <button class="btn warn" onclick="generatePDF()">Descargar PDF</button>
+        <button class="btn" onclick="compartir()">Compartir</button>
+      </div>
+    </div>
+
+    <!-- PRINT / PDF CONTENT -->
+    <div class="print" id="printArea" style="position:relative">
+      <div class="wm"><img id="wmImg" alt="marca de agua"/></div>
+      <div class="wrap" style="padding:12px 22px">
+        <div class="block" style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+          <img id="pLogo" style="height:40px;width:auto"/>
+          <div>
+            <h2 style="margin:0;letter-spacing:.5px">ARCOSA REFRIGERACIÓN</h2>
+            <p style="margin:2px 0 0;font-size:12px"><span style="display:inline-block;padding:2px 8px;border-radius:9999px;background:#e6ecff;border:1px solid #cbd5ff;color:#1f2a44">Archivo de servicio</span></p>
+            <p style="margin:2px 0" id="pSub">—</p>
+          </div>
+        </div>
+
+        <div class="block">
+          <div class="box"><b>Cliente:</b> <span id="pCliente"></span> • <b>Contacto:</b> <span id="pContacto"></span> • <b>Correo:</b> <span id="pCorreoCliente"></span></div>
+          <div class="box"><b>Ubicación:</b> <span id="pUbic"></span> • <b>Tel:</b> <span id="pTel"></span></div>
+          <div class="box"><b>Técnico:</b> <span id="pTec"></span> • <b>CC Asistente:</b> <span id="pCorreoAsist"></span> • <b>CC Técnico:</b> <span id="pCorreoTec"></span></div>
+        </div>
+
+        <div class="block">
+          <div class="box"><b>Equipo:</b> <span id="pEquipo"></span> • <b>Serie:</b> <span id="pSerie"></span> • <b>OT/Ticket:</b> <span id="pOT"></span> • <b>Tipo:</b> <span id="pTipo"></span> • <b>Prioridad:</b> <span id="pPrior"></span> • <b>Refrigerante:</b> <span id="pRefrig"></span></div>
+        </div>
+
+        <div class="block" id="pBlockRepCliente">
+          <div class="box"><b>Reporte del cliente</b><br><span id="pRepIni"></span></div>
+          <div id="pFotosInicial"></div>
+        </div>
+
+        <div class="block" id="pBlockCondLlegada">
+          <div class="box"><b>Condiciones de llegada</b><br><span id="pDiag"></span></div>
+          <div id="pFotosDiag"></div>
+        </div>
+
+        <div class="block" id="pBlockTrabajo">
+          <div class="box"><b>Trabajo realizado</b><br><span id="pTrabajos"></span></div>
+          <div id="pFotosTrabajo"></div>
+          <div id="pMantoChecklist" style="display:none; margin-top:6px">
+            <div class="box"><b>Checklist de mantenimiento</b>
+              <ul id="pMantoList" style="margin:6px 0 0 16px"></ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="block">
+          <b>Condiciones de entrega y resultados</b>
+          <div class="grid grid-3">
+            <div class="box"><b>Amperaje promedio:</b> <span id="pAmpProm"></span></div>
+            <div class="box"><b>Congelación (min):</b> <span id="pTCong"></span></div>
+            <div class="box"><b>Deshielo (min):</b> <span id="pTDesh"></span></div>
+          </div>
+          <div class="grid grid-3">
+            <div class="box"><b>Hielo por cosecha (kg):</b> <span id="pKgCosecha"></span></div>
+            <div class="box"><b>Cosechas supervisadas:</b> <span id="pCosechasObs"></span></div>
+            <div class="box"><b>Ton/día (calc):</b> <span id="pTonsDia"></span></div>
+          </div>
+          <div class="grid grid-3">
+            <div class="box"><b>Tiempo abanico — Min:</b> <span id="pTAbanMin"></span></div>
+            <div class="box"><b>Tiempo abanico — Seg:</b> <span id="pTAbanSeg"></span></div>
+            <div class="box"><b>Ajuste de abanico (seg):</b> <span id="pAjusteAban"></span></div>
+          </div>
+          <div class="grid grid-3">
+            <div class="box"><b>Rango ciclado abanico — Mín (seg):</b> <span id="pRangoAbanMin"></span></div>
+            <div class="box"><b>Rango ciclado abanico — Máx (seg):</b> <span id="pRangoAbanMax"></span></div>
+            <div class="box"><b>Tiempo de reductor (min):</b> <span id="pTReductor"></span></div>
+          </div>
+          <div class="grid grid-3">
+            <div class="box"><b>Estado final:</b> <span id="pEstado"></span></div>
+          </div>
+          <div class="box"><b>Comentarios:</b> <span id="pComentResultados"></span></div>
+        </div>
+
+        <div class="block">
+          <b>Refacciones y materiales usados en el servicio</b>
+          <table class="tbl" style="width:100%">
+            <thead><tr><th>Descripción</th><th>Cantidad</th></tr></thead>
+            <tbody id="pParts"></tbody>
+          </table>
+        </div>
+
+        <div class="block">
+          <b>Recomendaciones y próximo servicio</b>
+          <div class="box"><b>Recomendaciones y trabajos futuros</b><br><span id="pRecom"></span></div>
+          <div id="pFotosRecom"></div>
+          <div class="grid grid-3" style="margin-top:6px">
+            <div class="box"><b>Fecha sugerida:</b> <span id="pProxFecha"></span></div>
+            <div class="box"><b>Prioridad:</b> <span id="pProxPrior"></span></div>
+            <div class="box"><b>Contacto para agendar:</b> <span id="pProxContacto"></span></div>
+          </div>
+        </div>
+
+        <div class="block">
+          <div class="box" style="text-align:center">
+            <div><img id="pSigTecnico" style="width:100%;max-width:320px;height:auto;border:1px solid #999;border-radius:6px"/></div>
+            <div><b>Técnico:</b> <span id="pNomTecnico"></span></div>
+          </div>
+        </div>
+
+        <div class="block" style="margin-top:12px">
+          <div class="box" style="text-align:center">
+            <div><img id="pSigCliente" style="width:100%;max-width:360px;height:auto;border:1px solid #999;border-radius:6px"/></div>
+            <div><b>Cliente:</b> <span id="pNomCliente"></span></div>
+            <p class="legend">Al firmar, el cliente declara que fue informado de los trabajos realizados, del equipo y materiales utilizados durante el servicio, y acepta que la máquina se entrega en el estado operativo descrito en este reporte. Cualquier cambio posterior en las condiciones de operación será considerado un nuevo servicio.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">© 2025 ARCOSA · Formato móvil de parte de servicio.</div>
+  </div>
+
+  <!-- Preview modal -->
+  <div id="preview" class="preview-backdrop">
+    <div class="preview-card">
+      <div class="preview-actions">
+        <button class="btn" onclick="generatePDF()">Imprimir / Guardar PDF</button>
+        <button class="btn danger" onclick="closePreview()">Cerrar</button>
+      </div>
+      <div id="previewBody"></div>
+    </div>
+  </div>
+
+<script>
+  // ====== Embebidos (opcional) ======
+  const EMBED_LOGO = '';
+  const EMBED_WATERMARK = '';
+  const $ = (id)=>document.getElementById(id);
+  // Helper seguro para innerHTML
+  function setHTMLById(id, html=''){ const el=document.getElementById(id); if(el) el.innerHTML = html; }
+
+  // ====== Inicialización UI ======
+  window.addEventListener('DOMContentLoaded', ()=>{
+    const DEFAULT_LOGO = 'data:image/svg+xml;utf8,' + encodeURIComponent(`<?xml version="1.0" encoding="UTF-8"?><svg xmlns="http://www.w3.org/2000/svg" width="240" height="60"><rect width="240" height="60" fill="white"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="28" fill="#0b1220">ARCOSA</text></svg>`);
+    const DEFAULT_WM = 'data:image/svg+xml;utf8,' + encodeURIComponent(`<?xml version="1.0" encoding="UTF-8"?><svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800"><g transform="translate(600,400) rotate(-25)"><text x="0" y="0" text-anchor="middle" dominant-baseline="middle" font-family="Arial, Helvetica, sans-serif" font-size="180" font-weight="900" fill="black" fill-opacity="0.08">ARCOSA</text></g></svg>`);
+
+    const logoSrc = EMBED_LOGO || DEFAULT_LOGO;
+    const wmSrc = EMBED_WATERMARK || DEFAULT_WM;
+
+    $('logoPreview').src = logoSrc; $('pLogo').src = logoSrc; $('wmImg').src = wmSrc;
+
+    // activar lógica por tipo inicialmente
+    updateServiceType();
+    enhanceChecklist();
+  });
+
+  // Carga manual de logo/watermark (opcional)
+  if($('logoFile')){
+    $('logoFile').addEventListener('change', (e)=>{
+      const f=e.target.files[0]; if(!f) return; const url=URL.createObjectURL(f);
+      $('logoPreview').src=url; $('pLogo').src=url;
+    });
+  }
+  if($('wmFile')){
+    $('wmFile').addEventListener('change', (e)=>{
+      const f=e.target.files[0]; if(!f) return; const url=URL.createObjectURL(f);
+      $('wmImg').src=url;
+    });
+  }
+
+  // Refrigerante: mostrar campo "Otro"
+  (function(){
+    const sel=$('refrigerante'); const inp=$('refrigeranteOtro');
+    if(!sel||!inp) return;
+    function sync(){ inp.style.display = sel.value==='otro' ? 'block' : 'none'; }
+    sel.addEventListener('change', sync); sync();
+  })();
+
+  // === Utilidad: mejorar etiquetas del checklist para alinear texto ===
+  function enhanceChecklist(){
+    const labels = document.querySelectorAll('#mantoChecklist label');
+    labels.forEach(l=>{
+      if(l.querySelector('span')) return; // ya está
+      const nodes=[...l.childNodes];
+      let txt="";
+      nodes.forEach(n=>{ if(n.nodeType===3){ txt += n.textContent; }});
+      nodes.forEach(n=>{ if(n.nodeType===3){ l.removeChild(n); }});
+      const span=document.createElement('span'); span.textContent=txt.trim();
+      l.appendChild(span);
+    });
+  }
+
+  // ====== Jornadas ======
+  function addJornada(d={fecha:'',inicio:'',fin:''}){
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td><input type="date" value="${d.fecha}"></td>
+                  <td><input type="time" value="${d.inicio}"></td>
+                  <td><input type="time" value="${d.fin}"></td>
+                  <td><button class="btn danger" onclick="this.closest('tr').remove()">Eliminar</button></td>`;
+    $('jornadasBody').appendChild(tr);
+  }
+  addJornada();
+
+  // ====== Refacciones (sin costos) ======
+  function addPartRow(d={desc:'',qty:''}){
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td><input placeholder="Descripción" value="${d.desc||''}"></td>
+                  <td><input type="number" step="0.01" placeholder="1" value="${d.qty||''}"></td>`;
+    $('partsBody').appendChild(tr);
+  }
+  addPartRow();
+
+  // ====== Firmas ======
+  function sigCanvasInit(id){
+    const c=$(id); const ctx=c.getContext('2d'); let drawing=false; let last=[0,0];
+    function pos(e){ const r=c.getBoundingClientRect(); const x=(e.touches?e.touches[0].clientX:e.clientX)-r.left; const y=(e.touches?e.touches[0].clientY:e.clientY)-r.top; return [x,y]; }
+    function start(e){drawing=true; last=pos(e)}
+    function move(e){ if(!drawing) return; e.preventDefault(); const [x,y]=pos(e); ctx.strokeStyle='#000'; ctx.lineWidth=2; ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(last[0],last[1]); ctx.lineTo(x,y); ctx.stroke(); last=[x,y]; }
+    function end(){drawing=false}
+    c.addEventListener('mousedown',start); c.addEventListener('mousemove',move); window.addEventListener('mouseup',end);
+    c.addEventListener('touchstart',start,{passive:false}); c.addEventListener('touchmove',move,{passive:false}); window.addEventListener('touchend',end);
+    const ratio=Math.max(1,Math.floor(window.devicePixelRatio||1)); c.width=c.clientWidth*ratio; c.height=c.clientHeight*ratio; ctx.scale(ratio,ratio);
+  }
+  sigCanvasInit('sigCliente'); sigCanvasInit('sigTecnico');
+  function clearSig(id){ const c=$(id); c.getContext('2d').clearRect(0,0,c.width,c.height); }
+
+  // ====== Cálculos ======
+  function computeTonsDia(tCong, tDesh, kg){
+    const ciclo = Number(tCong||0)+Number(tDesh||0);
+    if(ciclo<=0) return 0;
+    return (1440/ciclo)*Number(kg||0)/1000;
+  }
+  function calcTonsDia(){
+    const out = computeTonsDia($('tCong').value, $('tDesh').value, $('kgCosecha').value);
+    $('tonsDia').value = (Math.round(out*100)/100).toFixed(2);
+    return out;
+  }
+  ['tCong','tDesh','kgCosecha'].forEach(id=> $(id).addEventListener('input', calcTonsDia));
+
+  // ====== Mostrar/Ocultar secciones según tipo ======
+  function updateServiceType(){
+    const tipo = ($('tipo')?.value||'').toLowerCase();
+    const show = (el, on)=>{ if(!el) return; el.style.display = on? 'block':'none'; };
+
+    // reglas
+    const isCorrectivo = tipo==='correctivo';
+    const isLevantamiento = tipo==='levantamiento';
+    const isInstalacion = tipo==='instalación' || tipo==='instalacion';
+    const isMantenimiento = tipo==='mantenimiento';
+
+    // Formulario
+    show($('cardRepCliente'), isCorrectivo || isLevantamiento); // Reporte del cliente solo para Correctivo/Diagnóstico
+    show($('cardCondLlegada'), isCorrectivo || isLevantamiento || isInstalacion || isMantenimiento); // siempre salvo que cambie regla
+    show($('cardTrabajo'), isCorrectivo || isLevantamiento || isInstalacion || isMantenimiento);
+
+    // Checklist mantenimiento dentro del bloque de Trabajo
+    const chkWrap = $('mantoChecklist');
+    if(chkWrap) chkWrap.style.display = isMantenimiento ? 'block' : 'none';
+
+    // Vista de impresión
+    show($('pBlockRepCliente'), isCorrectivo || isLevantamiento);
+    show($('pBlockCondLlegada'), isCorrectivo || isLevantamiento || isInstalacion || isMantenimiento);
+    show($('pBlockTrabajo'), isCorrectivo || isLevantamiento || isInstalacion || isMantenimiento);
+    show($('pMantoChecklist'), isMantenimiento);
+  }
+  document.addEventListener('change', (e)=>{ if(e.target && e.target.id==='tipo') updateServiceType(); });
+
+  // ====== Datos ======
+  function collectData(){
+    const jornadas=[...$('jornadasBody').querySelectorAll('tr')].map(tr=>{
+      const [f,i,o]=[...tr.querySelectorAll('input')].map(i=>i.value);
+      return {fecha:f,inicio:i,fin:o};
+    });
+    const refrSel=$('refrigerante') ? $('refrigerante').value : '';
+    const refrigerante = (refrSel==='otro') ? ($('refrigeranteOtro').value||'') : refrSel;
+
+    // checklist mantenimiento
+    const mantoChecks = [...document.querySelectorAll('.chkManto:checked')].map(i=>i.value);
+
+    return {
+      cliente: $('cliente').value,
+      contacto: $('contacto').value,
+      ubicacion: $('ubicacion').value,
+      telefono: $('telefono').value,
+      correoCliente: $('correoCliente').value,
+      tecnico: $('tecnico').value,
+      correoTec: $('correoTec').value,
+      correoAsistente: $('correoAsistente').value,
+      equipo: $('equipo').value,
+      serie: $('serie').value,
+      ot: $('ot').value,
+      tipo: $('tipo').value,
+      prioridad: $('prioridad').value,
+      refrigerante,
+      jornadas,
+      reporteInicial: $('reporteInicial').value,
+      diagnostico: $('diagnostico').value,
+      trabajos: $('trabajos').value,
+      ampProm: $('ampProm').value,
+      tCong: $('tCong').value,
+      tDesh: $('tDesh').value,
+      kgCosecha: $('kgCosecha').value,
+      cosechasObs: $('cosechasObs').value,
+      // abanico / reductor
+      tAbanMin: $('tAbanMin').value,
+      tAbanSeg: $('tAbanSeg').value,
+      ajusteAban: $('ajusteAban').value,
+      rangoAbanMin: $('rangoAbanMin').value,
+      rangoAbanMax: $('rangoAbanMax').value,
+      tReductor: $('tReductor').value,
+      // estado y comentarios
+      estado: $('estado').value,
+      comentResultados: $('comentResultados').value,
+      // recomendaciones / próximo servicio
+      recomendaciones: $('recomendaciones').value,
+      proxFecha: $('proxFecha')?.value || '',
+      proxPrior: $('proxPrior')?.value || '',
+      proxContacto: $('proxContacto')?.value || '',
+      // mantenimiento checklist
+      mantoChecks,
+      // firmas
+      nomCliente: $('nombreCliente').value,
+      nomTecnico: $('nombreTecnico').value
+    };
+  }
+
+  // ====== Render impresión ======
+  function partsToPrint(){
+    const frag=document.createDocumentFragment();
+    [...$('partsBody').querySelectorAll('tr')].forEach(tr=>{
+      const [d,q]=[...tr.querySelectorAll('input')].map(i=>i.value);
+      const row=document.createElement('tr');
+      row.innerHTML=`<td>${d||''}</td><td>${q||''}</td>`;
+      frag.appendChild(row);
+    });
+    return frag;
+  }
+  async function filesToImgs(fileInputId, max=12){
+    const files=[...$(fileInputId).files]; const frag=document.createDocumentFragment();
+    for(const f of files.slice(0,max)){
+      const url=URL.createObjectURL(f); const img=document.createElement('img'); img.src=url; img.style.maxWidth='30%'; img.style.margin='4px'; img.style.border='1px solid #999'; img.style.borderRadius='6px'; frag.appendChild(img);
+    }
+    return frag;
+  }
+  async function fillPrint(){
+    const d=collectData();
+    $('pSub').textContent = `OT/Ticket ${d.ot||'-'} · ${d.tipo||'-'} · ${d.prioridad||'-'}`;
+    $('pCliente').textContent=d.cliente||'-'; $('pContacto').textContent=d.contacto||'-'; $('pCorreoCliente').textContent=d.correoCliente||'-';
+    $('pUbic').textContent=d.ubicacion||'-'; $('pTel').textContent=d.telefono||'-';
+    $('pTec').textContent=d.tecnico||'-'; $('pCorreoAsist').textContent=d.correoAsistente||'-'; $('pCorreoTec').textContent=d.correoTec||'-';
+    $('pEquipo').textContent=d.equipo||'-'; $('pSerie').textContent=d.serie||'-'; $('pOT').textContent=d.ot||'-'; $('pTipo').textContent=d.tipo||'-'; $('pPrior').textContent=d.prioridad||'-'; $('pRefrig').textContent=d.refrigerante||'-';
+
+    const tb=$('pJornadas'); if(tb){ tb.innerHTML='';
+    d.jornadas.forEach(j=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td>${j.fecha||'-'}</td><td>${j.inicio||'-'}</td><td>${j.fin||'-'}</td>`; tb.appendChild(tr); });
+    }
+
+    $('pRepIni').textContent=d.reporteInicial||'-';
+    $('pDiag').textContent=d.diagnostico||'-';
+    $('pTrabajos').textContent=d.trabajos||'-';
+    $('pRecom').textContent=d.recomendaciones||'-';
+
+    $('pAmpProm').textContent=d.ampProm||'-'; $('pTCong').textContent=d.tCong||'-'; $('pTDesh').textContent=d.tDesh||'-';
+    $('pKgCosecha').textContent=d.kgCosecha||'-'; $('pCosechasObs').textContent=d.cosechasObs||'-';
+    $('pTonsDia').textContent=($('tonsDia').value||'0.00');
+    // abanico / reductor
+    if($('pTAbanMin')) $('pTAbanMin').textContent = d.tAbanMin||'-';
+    if($('pTAbanSeg')) $('pTAbanSeg').textContent = d.tAbanSeg||'-';
+    if($('pAjusteAban')) $('pAjusteAban').textContent = d.ajusteAban||'-';
+    if($('pRangoAbanMin')) $('pRangoAbanMin').textContent = d.rangoAbanMin||'-';
+    if($('pRangoAbanMax')) $('pRangoAbanMax').textContent = d.rangoAbanMax||'-';
+    if($('pTReductor')) $('pTReductor').textContent = d.tReductor||'-';
+
+    $('pEstado').textContent=d.estado||'-';  $('pComentResultados').textContent=d.comentResultados||'-';
+
+    if($('pProxFecha')) $('pProxFecha').textContent=d.proxFecha||'-';
+    if($('pProxPrior')) $('pProxPrior').textContent=d.proxPrior||'-';
+    if($('pProxContacto')) $('pProxContacto').textContent=d.proxContacto||'-';
+
+    const pParts=$('pParts'); if(pParts) pParts.innerHTML=''; pParts.appendChild(partsToPrint());
+
+    // checklist mantenimiento
+    const pM = $('pMantoList');
+    if(pM){ pM.innerHTML=''; (d.mantoChecks||[]).forEach(txt=>{ const li=document.createElement('li'); li.textContent=txt; pM.appendChild(li); }); }
+
+    const c1=$('sigCliente'), c2=$('sigTecnico');
+    $('pSigCliente').src=c1.toDataURL('image/png'); $('pSigTecnico').src=c2.toDataURL('image/png');
+    $('pNomCliente').textContent=d.nomCliente||'-'; $('pNomTecnico').textContent=d.nomTecnico||d.tecnico||'-';
+
+    const conts=[["fotosInicial","pFotosInicial"],["fotosDiag","pFotosDiag"],["fotosTrabajo","pFotosTrabajo"],["fotosRecom","pFotosRecom"]];
+    for(const [inp,wrapId] of conts){ const frag=await filesToImgs(inp); const wrap=$(wrapId); if(wrap){ wrap.innerHTML=''; wrap.appendChild(frag); } }
+
+    // asegurar visibilidad correcta también en preview/print
+    updateServiceType();
+  }
+
+  // ====== Archivo (nombre cliente-fecha) ======
+  function slug(s){
+    return (s||'reporte').toString().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9]+/g,'-').replace(/^-+|-+$/g,'').toLowerCase();
+  }
+  function buildBaseName(){
+    const d=collectData();
+    const cli=slug(d.cliente||'reporte');
+    const fecha = (d.jornadas && d.jornadas[0] && d.jornadas[0].fecha) ? d.jornadas[0].fecha : (new Date()).toISOString().slice(0,10);
+    return `${cli}-${fecha}`;
+  }
+
+  // ====== Exportación ======
+  async function elementToPNGFile(el, filename){
+    const clone=el.cloneNode(true); clone.style.display='block';
+    const w=el.scrollWidth||900, h=el.scrollHeight||1200;
+    const svg=`<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"${w}\" height=\"${h}\"><foreignObject width=\"100%\" height=\"100%\">${new XMLSerializer().serializeToString(clone)}</foreignObject></svg>`;
+    const url='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
+    const img=new Image(); img.crossOrigin='anonymous'; await new Promise(r=>{img.onload=r; img.src=url});
+    const canvas=document.createElement('canvas'); canvas.width=w; canvas.height=h; const ctx=canvas.getContext('2d'); ctx.fillStyle='#fff'; ctx.fillRect(0,0,w,h); ctx.drawImage(img,0,0);
+    const blob=await new Promise(res=>canvas.toBlob(res,'image/png'));
+    return new File([blob], filename, {type:'image/png'});
+  }
+
+  async function generatePDF(){
+    try{
+      calcTonsDia();
+      await fillPrint();
+      { const pv=document.getElementById('preview'); if(pv && pv.classList.contains('show')) closePreview(); }
+      setTimeout(()=>{ window.print(); }, 50);
+    }catch(e){
+      console.error(e); alert('No se pudo preparar el PDF: '+e.message);
+    }
+  }
+
+  // ====== Compartir ======
+  async function compartir(){
+    try{
+      calcTonsDia();
+      await fillPrint();
+      const d=collectData();
+      const to=(d.correoCliente||'').trim();
+      const cc=[d.correoAsistente, d.correoTec].filter(Boolean).join(',');
+      const subject=`Reporte de Servicio - ${d.cliente||''} (OT ${d.ot||'-'})`;
+      const body=`Estimado/a ${d.contacto||''},\n\nAdjunto el parte de servicio correspondiente.\nCliente: ${d.cliente||''}\nEquipo: ${d.equipo||''} (Serie ${d.serie||''})\nOT: ${d.ot||''}\nEstado final: ${d.estado||''}\nTon/día (calc): ${document.getElementById('tonsDia').value||'0.00'}\n\nSaludos,\n${d.tecnico||'Técnico'}`;
+
+      try{
+        const file = await elementToPNGFile(document.getElementById('printArea'), (buildBaseName()+'.png'));
+        if(navigator.canShare && navigator.canShare({files:[file]})){
+          await navigator.share({title: subject, text: body, files:[file]});
+          return;
+        }
+      }catch(e){ console.warn('Share API no disponible o falló:', e); }
+
+      const mailto = `mailto:${encodeURIComponent(to)}?cc=${encodeURIComponent(cc)}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      window.location.href = mailto;
+    }catch(e){
+      console.error(e); alert('No se pudo abrir la opción de compartir: '+e.message);
+    }
+  }
+
+  // ====== Tests (activar con ?test=1) ======
+  function runTests(){
+    const results=[]; const assert=(name, cond)=>results.push({name, ok:!!cond});
+
+    const t1=computeTonsDia(30,10,10); // 1440/(40)*10/1000 = 0.36
+    assert('computeTonsDia básico', Math.abs(t1-0.36) < 1e-6);
+    $('tCong').value=30; $('tDesh').value=10; $('kgCosecha').value=10; calcTonsDia();
+    assert('calcTonsDia UI', $('tonsDia').value==='0.36');
+
+    $('refrigerante').value='otro'; $('refrigeranteOtro').style.display='block'; $('refrigeranteOtro').value='R-123';
+    const d=collectData();
+    assert('collectData refrigerante otro', d.refrigerante==='R-123');
+
+    const before=$('jornadasBody').children.length; addJornada(); const after=$('jornadasBody').children.length;
+    assert('addJornada agrega fila', after===before+1);
+
+    // abanico/reductor (en segundos, sin porcentajes)
+    $('tAbanMin').value='12'; $('tAbanSeg').value='30'; $('ajusteAban').value='25'; $('rangoAbanMin').value='20'; $('rangoAbanMax').value='80'; $('tReductor').value='15';
+    const d2=collectData();
+    assert('collectData abanico/reductor', d2.tAbanMin==='12' && d2.tAbanSeg==='30' && d2.ajusteAban==='25' && d2.rangoAbanMin==='20' && d2.rangoAbanMax==='80' && d2.tReductor==='15');
+
+    // visibilidad por tipo
+    $('tipo').value='Correctivo'; updateServiceType();
+    assert('Correctivo muestra RepCliente', document.getElementById('cardRepCliente').style.display!=='none');
+    $('tipo').value='Instalación'; updateServiceType();
+    assert('Instalación oculta RepCliente', document.getElementById('cardRepCliente').style.display==='none');
+    $('tipo').value='Mantenimiento'; updateServiceType();
+    assert('Mantenimiento muestra checklist', document.getElementById('mantoChecklist').style.display!=='none');
+
+    $('tipo').value='Levantamiento'; updateServiceType();
+    assert('Levantamiento muestra RepCliente', document.getElementById('cardRepCliente').style.display!=='none');
+
+    console.table(results);
+    const failed=results.filter(r=>!r.ok);
+    alert(failed.length? `Tests fallidos: ${failed.map(f=>f.name).join(', ')}` : 'Todos los tests pasaron ✅');
+  }
+  if(location.search.includes('test=1')){ try{ runTests(); }catch(e){ console.error(e); alert('Error en tests: '+e.message); } }
+
+  // ====== Vista previa ======
+  async function previewReport(){
+    try{
+      await fillPrint();
+      const cont = document.getElementById('previewBody');
+      if(!cont){ console.warn('previewBody no encontrado'); return; }
+      cont.innerHTML = '';
+      const clone = document.getElementById('printArea').cloneNode(true);
+      clone.id = 'previewPrintArea';
+      cont.appendChild(clone);
+      const pv = document.getElementById('preview'); if(pv){ pv.classList.add('show'); }
+      window.scrollTo({top:0, behavior:'smooth'});
+    }catch(e){
+      console.error(e); alert('No se pudo generar la vista previa: '+e.message);
+    }
+  }
+  function closePreview(){
+    const p = document.getElementById('preview');
+    if(!p) return; 
+    p.classList.remove('show');
+    setHTMLById('previewBody','');
+  }
+</script>
+</body>
+</html>
